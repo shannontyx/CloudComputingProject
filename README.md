@@ -14,8 +14,7 @@ Before starting, ensure you have the following installed and configured:
 
 ### Deploying the Original Application in GKE [DONE]
 
-**Step 0: Set Up GCP Project and Enable Necessary Services
-**
+**Step 0: Set Up GCP Project and Enable Necessary Services**
 ```bash
 export PROJECT_ID=hello-app-123456
 gcloud config set project ${PROJECT_ID}
@@ -68,7 +67,7 @@ kubectl get pods
 ```bash
 kubectl get service frontend-external
 ```
-Example output:
+#Example output:
 ```
 NAME                TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)        AGE
 frontend-external   LoadBalancer   34.118.236.208   34.65.135.210   80:30651/TCP   33m
@@ -117,7 +116,7 @@ http://34.65.135.210
 ```
 
 ### Terraform Integration
-Step 1: Create a Service Account for Terraform
+**Step 1: Create a Service Account for Terraform**
 ```bash
 gcloud iam service-accounts create terraform-sa \
     --description="Terraform Service Account" \
@@ -135,64 +134,35 @@ gcloud iam service-accounts keys create ~/terraform-key.json \
 ```bash
 nano main.tf
 ```
+main.tf content for Terraform configuration is inside the main.tf file in this github.
 
-Add the following Terraform configuration:
-
-hcl
-Copy code
-provider "google" {
-  credentials = file("~/terraform-key.json")
-  project     = "hello-app-123456"
-  region      = "europe-west6"
-  zone        = "europe-west6-a"
-}
-
-variable "frontend_ip" {
-  description = "The external IP address of the frontend service"
-  type        = string
-}
-
-resource "google_compute_instance" "loadgenerator" {
-  name         = "loadgenerator-vm"
-  machine_type = "e2-micro"
-  zone         = "europe-west6-a"
-
-  boot_disk {
-    initialize_params {
-      image = "projects/debian-cloud/global/images/family/debian-11"
-    }
-  }
-
-  network_interface {
-    network = "default"
-  }
-
-  metadata_startup_script = <<-EOT
-    #!/bin/bash
-    apt-get update
-    apt-get install -y docker.io
-    docker pull gcr.io/hello-app-123456/loadgenerator
-    docker run -d --name=loadgenerator --restart=always gcr.io/hello-app-123456/loadgenerator -host http://${var.frontend_ip}
-  EOT
-}
-Step 3: Push the Docker Image to Google Container Registry
-bash
-Copy code
+**Step 3: Push the Docker Image to Google Container Registry**
+```bash
 docker tag loadgenerator gcr.io/hello-app-123456/loadgenerator
 docker push gcr.io/hello-app-123456/loadgenerator
-Step 4: Initialize Terraform
-bash
-Copy code
+```
+
+**Step 4: Initialize Terraform**
+```bash
 terraform init
-Step 5: Review the Terraform Plan
-bash
-Copy code
+```
+
+**Step 5: Review the Terraform Plan** 
+```bash
 terraform plan
-Step 6: Apply the Terraform Configuration
-bash
-Copy code
+```
+Enter external IP address when prompted. External IP address can be obtained with the following command.
+```bash
+kubectl get service frontend-external
+```
+
+**Step 6: Apply the Terraform Configuration**
+```bash
 terraform apply
+```
+Enter external IP address when prompted.
 Confirm with yes when prompted.
+Go to Google Cloud Console -> Compute Engine -> VMs and we can see that loadgenerator-vm has been configured.
 
 ---
 
