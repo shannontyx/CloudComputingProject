@@ -193,3 +193,67 @@ bash
 Copy code
 terraform apply
 Confirm with yes when prompted.
+
+---
+
+## Advanced Steps
+### Monitoring the application and the infrastructure
+
+## Step 1: Prepare the Cluster and Environment
+```bash
+kubectl cluster-info
+kubectl get nodes
+```
+
+## Step 2: Install Helm
+```bash
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+helm version
+```
+
+## Step 3: Create a Namespace for Monitoring
+```bash
+kubectl create namespace monitoring
+```
+## Step 4: Deploy Prometheus and Grafana Using Helm
+### Add the Prometheus Community Helm Chart Repository
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+```
+### Install the kube-prometheus-stack
+```bash
+helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring
+```
+
+## Step 5: Verify the Installation
+### Check Pods in the Monitoring Namespace
+```bash
+kubectl get pods -n monitoring
+```
+
+### Check the Services
+```bash
+kubectl get svc -n monitoring
+```
+## Step 6: Access Grafana
+```bash
+kubectl port-forward --namespace monitoring svc/prometheus-grafana 3000:80
+http://localhost:3000
+```
+
+## Step 7: Configure Grafana Dashboards
+```bash
+http://prometheus-server.monitoring.svc.cluster.local
+```
+
+## Step 8: Verify Metrics Collection
+### Access the Prometheus web UI via port-forwarding:
+```bash
+kubectl port-forward --namespace monitoring svc/prometheus-server 9090:9090
+http://localhost:9090
+```
+
+
+
+
