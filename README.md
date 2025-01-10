@@ -524,3 +524,59 @@ Apply the Configuration:
 kubectl apply -f virtual-service.yaml
 
 ```
+
+**Step 3: Verify Traffic Split**
+
+1. Monitor Logs:
+Check the logs of both versions:
+```bash
+
+kubectl logs deployment/productcatalog-v1
+kubectl logs deployment/productcatalog-v2
+```
+
+2. Verify that approximately 25% of the requests are handled by v2 and 75% by v1.
+Use Locust:
+
+Generate traffic with Locust and monitor the responses. Verify the version-specific responses (e.g., "Welcome to Product Catalog v1" vs. "Welcome to Product Catalog v2").
+
+3. Use Istio Metrics:
+
+Access the Istio Dashboard in Grafana and analyze the traffic split between the two versions.
+
+**Step 4: Fully Switch to v2**
+1. Update the Traffic Split:
+
+Modify the VirtualService configuration to route 100% of the traffic to v2:
+```yaml
+
+http:
+- route:
+  - destination:
+      host: productcatalogservice
+      subset: v2
+    weight: 100
+```
+
+2. Apply the Configuration:
+
+```bash
+
+kubectl apply -f virtual-service.yaml
+```
+
+3. Scale Down v1:
+
+Once v2 is validated, scale down v1 to 0 replicas to fully decommission it:
+```bash
+
+kubectl scale deployment/productcatalog-v1 --replicas=0
+```
+**Step 5: Extend for Seamless Updates**
+Ensure Zero Downtime:
+
+Use readiness probes to ensure v2 is fully operational before switching traffic.
+Configure rolling updates to avoid disruptions for in-flight requests.
+Rollback Plan:
+
+Retain the configuration for v1 to quickly revert if issues arise with v2.
