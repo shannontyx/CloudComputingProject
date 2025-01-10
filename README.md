@@ -231,9 +231,8 @@ kubectl get svc -n monitoring
 Access Grafana on your local browser using:</br>
 http://<EXTERNAL-IP>:80
 
-```bash
 
-## Deploying Exporters for Node and Pod Metrics in Kubernetes
+## Deploying Exporters for Node and Pod Metrics in Kubernetes 
 
 Deploying Exporters for Node and Pod Metrics in Kubernetes
 **Step 7: Deploy Node Exporter** </br>
