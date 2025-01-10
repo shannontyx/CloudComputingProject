@@ -222,44 +222,41 @@ kubectl edit svc prometheus-grafana -n monitoring
 spec:
   type: LoadBalancer
 ```
-3. Save and exit the editor.
+
+3. Save and exit the editor. </br>
 4. Verify the external IP address (Wait a few minutes for Kubernetes to assign an external IP):
 ```bash
 kubectl get svc -n monitoring
 ```
-Access Grafana on your local browser using:
+Access Grafana on your local browser using:</br>
 http://<EXTERNAL-IP>:80
 
 ```bash
 
 ## Deploying Exporters for Node and Pod Metrics in Kubernetes
 
-To collect information at the node and pod levels for your Grafana dashboard, follow these steps:
-
----
 Deploying Exporters for Node and Pod Metrics in Kubernetes
-Step 7: Deploy Node Exporter
-
+**Step 7: Deploy Node Exporter** </br>
 7.1 Install Node Exporter with Helm
 
-bash
-Copy code
+```bash
 helm install node-exporter prometheus-community/prometheus-node-exporter \
   --namespace monitoring \
   --set service.type=NodePort
+```
 7.2 Verify the Deployment Check if the Node Exporter DaemonSet is running:
 
-bash
-Copy code
+```bash
 kubectl get daemonsets -n monitoring -l app.kubernetes.io/name=prometheus-node-exporter
+```
 Each node in your cluster should have a node-exporter pod.
 
-Step 8: Deploy cAdvisor
+**Step 8: Deploy cAdvisor**
 
+</br>
 8.1 Create a cAdvisor Deployment Create a file called cadvisor-daemonset.yaml and add the following content:
 
-yaml
-Copy code
+```bash
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -315,11 +312,12 @@ spec:
       - name: docker
         hostPath:
           path: /var/lib/docker
-Apply the configuration:
+```
 
-bash
-Copy code
+Apply the configuration:
+```bash
 kubectl apply -f cadvisor-daemonset.yaml
+```
 8.2 Verify the Deployment Check if the cAdvisor DaemonSet is running:
 
 bash
