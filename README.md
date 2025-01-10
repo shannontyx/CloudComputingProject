@@ -23,8 +23,7 @@ gcloud config set compute/zone europe-west6-a
 gcloud services enable compute.googleapis.com container.googleapis.com
 ```
 
-**Step 1: Prepare a Directory and Clone the Repository
-**
+**Step 1: Prepare a Directory and Clone the Repository**
 ```bash
 mkdir ~/projects
 cd ~/projects
@@ -32,8 +31,8 @@ git clone --depth 1 --branch v0 https://github.com/GoogleCloudPlatform/microserv
 cd microservices-demo/
 ```
 
-**Step 2: Create the GKE Cluster with Limited Disk Size
-**```bash
+**Step 2: Create the GKE Cluster with Limited Disk Size**
+```bash
 gcloud container clusters create online-boutique \
   --num-nodes=4 \
   --machine-type=e2-standard-2 \
@@ -48,8 +47,7 @@ gcloud container clusters resize online-boutique \
   --region=europe-west6
 ```
 
-**Step 3: Configure kubectl to Use the New Cluster
-**
+**Step 3: Configure kubectl to Use the New Cluster**
 ```bash
 gcloud container clusters get-credentials online-boutique
 ```
@@ -76,59 +74,51 @@ NAME                TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)     
 frontend-external   LoadBalancer   34.118.236.208   34.65.135.210   80:30651/TCP   33m
 ```
 
-**Step 7: View Logs of the Load Generator to Monitor Traffic
-**
+**Step 7: View Logs of the Load Generator to Monitor Traffic**
 ```bash
 kubectl logs -l app=loadgenerator -f
 ```
 
 ### Deploying the Load Generator on a Local Machine 
-Step 8: Navigate to the Load Generator Directory
-bash
-Copy code
+**Step 8: Navigate to the Load Generator Directory**
+```bash
 cd ~/projects/microservices-demo/src/loadgenerator/
-Step 9: Build the Docker Image for the Load Generator
-bash
-Copy code
+```
+**Step 9: Build the Docker Image for the Load Generator**
+```bash
 docker build -t loadgenerator .
-Step 10: Run the Load Generator with the Frontend's External IP
-bash
-Copy code
-docker run -it --rm loadgenerator -host http://<FRONTEND_IP>
-Example:
+```
 
-bash
-Copy code
+**Step 10: Run the Load Generator with the Frontend's External IP**
+```bash
+docker run -it --rm loadgenerator -host http://<FRONTEND_IP>
+```
+Example:
+```bash
 docker run -it --rm loadgenerator -host http://34.65.135.210
-Step 11: Monitor the Logs of the Load Generator
-bash
-Copy code
+```
+
+**Step 11: Monitor the Logs of the Load Generator**
+```bash
 # Logs will show the requests being made to the Online Boutique application
 # Press Ctrl + C to stop monitoring the logs.
-Step 12: Verify the Frontend Service is Accessible
-bash
-Copy code
-kubectl get service frontend-external
-Example output:
+```
 
-scss
-Copy code
-NAME                TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)        AGE
-frontend-external   LoadBalancer   34.118.231.108   34.65.191.236   80:30339/TCP   6m54s
-Step 13: Open the Application in Your Browser
-bash
-Copy code
+**Step 12: Verify the Frontend Service is Accessible**
+```bash
+kubectl get service frontend-external
+```
+**Step 13: Open the Application in Your Browser**
+```bash
 # Replace <FRONTEND_IP> with the external IP of the frontend service
 http://<FRONTEND_IP>
 Example:
-
-bash
-Copy code
 http://34.65.135.210
-Terraform Integration
+```
+
+### Terraform Integration
 Step 1: Create a Service Account for Terraform
-bash
-Copy code
+```bash
 gcloud iam service-accounts create terraform-sa \
     --description="Terraform Service Account" \
     --display-name="terraform-sa"
@@ -139,10 +129,13 @@ gcloud projects add-iam-policy-binding hello-app-123456 \
 
 gcloud iam service-accounts keys create ~/terraform-key.json \
     --iam-account=terraform-sa@hello-app-123456.iam.gserviceaccount.com
-Step 2: Create the Terraform Configuration File
-bash
-Copy code
+```
+
+**Step 2: Create the Terraform Configuration File**
+```bash
 nano main.tf
+```
+
 Add the following Terraform configuration:
 
 hcl
