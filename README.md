@@ -113,7 +113,14 @@ kubectl get service frontend-external
 ```
 
 ### Deploying automatically the load generator in Google Cloud
-**Step 1: Create a Service Account for Terraform**
+**Step 1: Create a Directory for Terraform Files**
+```bash
+cd
+mkdir ~/terraform-loadgenerator
+cd ~/terraform-loadgenerator
+```
+
+**Step 2: Create a Service Account for Terraform**
 ```bash
 gcloud iam service-accounts create terraform-sa \
     --description="Terraform Service Account" \
@@ -127,17 +134,11 @@ gcloud iam service-accounts keys create ~/terraform-key.json \
     --iam-account=terraform-sa@hello-app-123456.iam.gserviceaccount.com
 ```
 
-**Step 2: Create the Terraform Configuration File**
+**Step 3: Create the Terraform Configuration File**
 ```bash
 nano main.tf
 ```
 main.tf content for Terraform configuration is inside the main.tf file in this github.
-
-**Step 3: Push the Docker Image to Google Container Registry**
-```bash
-docker tag loadgenerator gcr.io/hello-app-123456/loadgenerator
-docker push gcr.io/hello-app-123456/loadgenerator
-```
 
 **Step 4: Initialize Terraform**
 ```bash
@@ -189,6 +190,7 @@ Add the Prometheus Community Helm Chart Repository**
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 ```
+
 **Install the kube-prometheus-stack**
 ```bash
 helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring
@@ -207,52 +209,174 @@ kubectl get svc -n monitoring
 **Step 6: Access Grafana**
 ```bash
 kubectl port-forward --namespace monitoring svc/prometheus-grafana 3000:80
+```
 
+To access Grafana on local browser, Change the Service Type to LoadBalancer
+1. Edit the Service
+```bash
+kubectl edit svc prometheus-grafana -n monitoring
+```
 
-Option 1: Change the Service Type to LoadBalancer
-Edit the Service:
+2.Modify the type Field: Change the type from ClusterIP to LoadBalancer:
+```bash
+spec:
+  type: LoadBalancer
+```
+3. Save and exit the editor.
+4. Verify the external IP address (Wait a few minutes for Kubernetes to assign an external IP):
+```bash
+kubectl get svc -n monitoring
+```
+Access Grafana on your local browser using:
+http://<EXTERNAL-IP>:80
+
+```bash
+
+## Deploying Exporters for Node and Pod Metrics in Kubernetes
+
+To collect information at the node and pod levels for your Grafana dashboard, follow these steps:
+
+---
+Deploying Exporters for Node and Pod Metrics in Kubernetes
+Step 7: Deploy Node Exporter
+
+7.1 Install Node Exporter with Helm
 
 bash
 Copy code
-kubectl edit svc prometheus-grafana -n monitoring
-Modify the type Field: Change the type from ClusterIP to LoadBalancer:
+helm install node-exporter prometheus-community/prometheus-node-exporter \
+  --namespace monitoring \
+  --set service.type=NodePort
+7.2 Verify the Deployment Check if the Node Exporter DaemonSet is running:
+
+bash
+Copy code
+kubectl get daemonsets -n monitoring -l app.kubernetes.io/name=prometheus-node-exporter
+Each node in your cluster should have a node-exporter pod.
+
+Step 8: Deploy cAdvisor
+
+8.1 Create a cAdvisor Deployment Create a file called cadvisor-daemonset.yaml and add the following content:
 
 yaml
 Copy code
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cadvisor
+  namespace: monitoring
+  labels:
+    app: cadvisor
 spec:
-  type: LoadBalancer
-Save and Exit: Save your changes and exit the editor.
+  selector:
+    matchLabels:
+      app: cadvisor
+  template:
+    metadata:
+      labels:
+        app: cadvisor
+    spec:
+      containers:
+      - name: cadvisor
+        image: gcr.io/google-containers/cadvisor:v0.47.0
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: rootfs
+          mountPath: /rootfs
+          readOnly: true
+        - name: var-run
+          mountPath: /var/run
+          readOnly: true
+        - name: sys
+          mountPath: /sys
+          readOnly: true
+        - name: docker
+          mountPath: /var/lib/docker
+          readOnly: true
+      volumes:
+      - name: rootfs
+        hostPath:
+          path: /
+      - name: var-run
+        hostPath:
+          path: /var/run
+      - name: sys
+        hostPath:
+          path: /sys
+      - name: docker
+        hostPath:
+          path: /var/lib/docker
+Apply the configuration:
 
-Verify the External IP: Wait a few minutes for Kubernetes to assign an external IP. Check the service again:
+bash
+Copy code
+kubectl apply -f cadvisor-daemonset.yaml
+8.2 Verify the Deployment Check if the cAdvisor DaemonSet is running:
 
-bkubectl get svc -n monitoring
-Once an EXTERNAL-IP appears, you can access on your local browser Grafana using:
+bash
+Copy code
+kubectl get daemonsets -n monitoring -l app=cadvisor
+Step 9: Configure Prometheus to Scrape Metrics
 
-plaintext
-http://<EXTERNAL-IP>:80
+9.1 Edit the Prometheus ConfigMap
 
-```
+bash
+Copy code
+kubectl edit configmap prometheus-kube-prometheus-prometheus -n monitoring
+Add the following scrape configurations under scrape_configs:
 
+yaml
+Copy code
+- job_name: 'node-exporter'
+  static_configs:
+  - targets: ['<NODE-EXPORTER-SERVICE>:9100']
 
+- job_name: 'cadvisor'
+  static_configs:
+  - targets: ['<CADVISOR-SERVICE>:8080']
+Replace <NODE-EXPORTER-SERVICE> and <CADVISOR-SERVICE> with the corresponding service names or endpoints.
 
-**Step 7: Login to Grafana**
-```bash
+9.2 Restart Prometheus
+
+bash
+Copy code
+kubectl delete pod -n monitoring -l app.kubernetes.io/name=prometheus
+Step 10: Login to Grafana
+
 Default credentials:
+
 Username: admin
 Password: prom-operator
-```
+Step 11: Import Grafana Dashboards
 
-**Step 8: Configure Grafana Dashboards**
-```bash
-http://prometheus-server.monitoring.svc.cluster.local
-```
+11.1 Node Exporter Dashboard
 
-**Step 9: Verify Metrics Collection
-Access the Prometheus web UI via port-forwarding:**
-```bash
-kubectl port-forward --namespace monitoring svc/prometheus-server 9090:9090
+Go to Dashboards > Import in Grafana.
+Use Dashboard ID 1860 (Node Exporter Full) from the Grafana website.
+Set Prometheus as the data source.
+11.2 cAdvisor Dashboard
+
+Go to Dashboards > Import in Grafana.
+Use Dashboard ID 14282 (cAdvisor Full Metrics) from the Grafana website.
+Set Prometheus as the data source.
+Step 12: Verify Metrics Collection
+
+Access the Prometheus web UI via port-forwarding:
+
+bash
+Copy code
+kubectl port-forward --namespace monitoring svc/prometheus-kube-prometheus-prometheus 9090:9090
+
 http://localhost:9090
-```
 
 
 
