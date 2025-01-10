@@ -445,8 +445,10 @@ locust -f locustfile.py --host=http://<FRONTEND_EXTERNAL_IP> --csv=results
 
 #### Access the Locust Web Interface:
 Open a browser and navigate to:
+```bash
 http://<VM_EXTERNAL_IP>:8089
 Replace <VM_EXTERNAL_IP> with the external IP of your VM.
+```
 
 Configure Test Parameters:
 
