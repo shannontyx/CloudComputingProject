@@ -251,8 +251,9 @@ kubectl get daemonsets -n monitoring -l app.kubernetes.io/name=prometheus-node-e
 ```
 Each node in your cluster should have a node-exporter pod.
 
-**Step 8: Deploy cAdvisor**
-8.1 Create a cAdvisor Deployment Create a file called cadvisor-daemonset.yaml and add the following content:
+**Step 8: Deploy cAdvisor** </br>
+8.1 Create a cAdvisor Deployment </br>
+Create a file called cadvisor-daemonset.yaml and add the following content:
 
 ```bash
 apiVersion: apps/v1
