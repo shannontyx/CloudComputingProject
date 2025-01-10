@@ -108,13 +108,11 @@ kubectl get service frontend-external
 ```
 **Step 13: Open the Application in Your Browser**
 ```bash
-# Replace <FRONTEND_IP> with the external IP of the frontend service
-http://<FRONTEND_IP>
-Example:
-http://34.65.135.210
+# Replace <FRONTEND_IP> with the external IP of the frontend service http://<FRONTEND_IP>
+# Example: http://34.65.135.210
 ```
 
-### Terraform Integration
+### Deploying automatically the load generator in Google Cloud
 **Step 1: Create a Service Account for Terraform**
 ```bash
 gcloud iam service-accounts create terraform-sa \
