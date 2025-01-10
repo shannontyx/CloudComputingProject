@@ -207,8 +207,33 @@ kubectl get svc -n monitoring
 **Step 6: Access Grafana**
 ```bash
 kubectl port-forward --namespace monitoring svc/prometheus-grafana 3000:80
-http://localhost:3000
+
+
+Option 1: Change the Service Type to LoadBalancer
+Edit the Service:
+
+bash
+Copy code
+kubectl edit svc prometheus-grafana -n monitoring
+Modify the type Field: Change the type from ClusterIP to LoadBalancer:
+
+yaml
+Copy code
+spec:
+  type: LoadBalancer
+Save and Exit: Save your changes and exit the editor.
+
+Verify the External IP: Wait a few minutes for Kubernetes to assign an external IP. Check the service again:
+
+bkubectl get svc -n monitoring
+Once an EXTERNAL-IP appears, you can access on your local browser Grafana using:
+
+plaintext
+http://<EXTERNAL-IP>:80
+
 ```
+
+
 
 **Step 7: Login to Grafana**
 ```bash
