@@ -210,12 +210,19 @@ kubectl port-forward --namespace monitoring svc/prometheus-grafana 3000:80
 http://localhost:3000
 ```
 
-**Step 7: Configure Grafana Dashboards**
+**Step 7: Login to Grafana**
+```bash
+Default credentials:
+Username: admin
+Password: prom-operator
+```
+
+**Step 8: Configure Grafana Dashboards**
 ```bash
 http://prometheus-server.monitoring.svc.cluster.local
 ```
 
-**Step 8: Verify Metrics Collection
+**Step 9: Verify Metrics Collection
 Access the Prometheus web UI via port-forwarding:**
 ```bash
 kubectl port-forward --namespace monitoring svc/prometheus-server 9090:9090
