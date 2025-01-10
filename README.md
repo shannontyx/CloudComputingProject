@@ -469,3 +469,58 @@ Enter the path to the files, e.g., ~/results_stats.csv.
 
 
 **Step 7: Generate Graphs: Use tools like Excel, Google Sheets, or Python to create graphs based on the CSV data for analysis.**
+
+
+
+### Canary releases
+**Step 1: Modify the Microservice Code**
+Create a New Version (v2):
+Clone the existing codebase of productcatalogservice.
+
+Modify a simple string or value to differentiate between v1 and v2. For instance:
+Update the welcome message from "Welcome to Product Catalog v1" to "Welcome to Product Catalog v2".
+
+Build a new container image for v2:
+```bash
+docker build -t gcr.io/<PROJECT_ID>/productcatalogservice:v2 .
+docker push gcr.io/<PROJECT_ID>/productcatalogservice:v2
+```
+**Step 2: Deploy v2 Alongside v1**
+
+Deploy Both Versions:
+```bash
+Update the Kubernetes manifests to include two deployments for productcatalogservice:
+productcatalog-v1 pointing to gcr.io/<PROJECT_ID>/productcatalogservice:v1.
+productcatalog-v2 pointing to gcr.io/<PROJECT_ID>/productcatalogservice:v2.
+Update the Service Configuration:
+```
+
+Use Istio's VirtualService or Kubernetes Ingress to route 25% of the traffic to productcatalog-v2 and 75% to productcatalog-v1. Example using Istio:
+```bash
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: productcatalogservice
+spec:
+  hosts:
+  - productcatalogservice
+  http:
+  - route:
+    - destination:
+        host: productcatalogservice
+        subset: v1
+      weight: 75
+    - destination:
+        host: productcatalogservice
+        subset: v2
+      weight: 25
+
+```
+
+
+
+Apply the Configuration:
+```bash
+kubectl apply -f virtual-service.yaml
+
+```
