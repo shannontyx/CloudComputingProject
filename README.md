@@ -227,7 +227,7 @@ helm install prometheus prometheus-community/kube-prometheus-stack --namespace m
 ```
 
 **Step 5: Verify the Installation
-Check Pods in the Monitoring Namespace***
+Check Pods in the Monitoring Namespace**
 ```bash
 kubectl get pods -n monitoring
 ```
