@@ -215,24 +215,24 @@ helm version
 ```bash
 kubectl create namespace monitoring
 ```
-**Step 4: Deploy Prometheus and Grafana Using Helm**
-***Add the Prometheus Community Helm Chart Repository***
+**Step 4: Deploy Prometheus and Grafana Using Helm
+Add the Prometheus Community Helm Chart Repository**
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 ```
-***Install the kube-prometheus-stack***
+**Install the kube-prometheus-stack**
 ```bash
 helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring
 ```
 
-**Step 5: Verify the Installation**
-***Check Pods in the Monitoring Namespace***
+**Step 5: Verify the Installation
+Check Pods in the Monitoring Namespace***
 ```bash
 kubectl get pods -n monitoring
 ```
 
-***Check the Services***
+**Check the Services**
 ```bash
 kubectl get svc -n monitoring
 ```
@@ -247,8 +247,8 @@ http://localhost:3000
 http://prometheus-server.monitoring.svc.cluster.local
 ```
 
-**Step 8: Verify Metrics Collection**
-***Access the Prometheus web UI via port-forwarding:***
+**Step 8: Verify Metrics Collection
+Access the Prometheus web UI via port-forwarding:**
 ```bash
 kubectl port-forward --namespace monitoring svc/prometheus-server 9090:9090
 http://localhost:9090
