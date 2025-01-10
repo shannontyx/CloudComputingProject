@@ -28,6 +28,7 @@ mkdir ~/projects
 cd ~/projects
 git clone --depth 1 --branch v0 https://github.com/GoogleCloudPlatform/microservices-demo.git
 cd microservices-demo/
+```
 
 ####Step 2: Create the GKE Cluster with Limited Disk Size
 ```bash
@@ -35,6 +36,7 @@ gcloud container clusters create online-boutique \
   --num-nodes=4 \
   --machine-type=e2-standard-2 \
   --disk-size=30
+```
 
 Challenge: Exceeded CPU size during terraform apply. The 4 nodes consumed all 8 CPUs in the europe-west6 region. Resized the GKE cluster to 2 nodes.
 
@@ -42,23 +44,28 @@ Challenge: Exceeded CPU size during terraform apply. The 4 nodes consumed all 8 
 gcloud container clusters resize online-boutique \
   --num-nodes=2 \
   --region=europe-west6
+```
 
 ####Step 3: Configure kubectl to Use the New Cluster
 ```bash
 gcloud container clusters get-credentials online-boutique
+```
 
 ####Step 4: Deploy the Application Using Kubernetes Manifests
 
 ```bash
 kubectl apply -f ./release/kubernetes-manifests.yaml
+```
 
 ####Step 5: Check if All Pods Are Running
 ```bash
 kubectl get pods
-Step 6: Find the External IP of the Frontend Service
-bash
-Copy code
+```
+
+####Step 6: Find the External IP of the Frontend Service
+```bash
 kubectl get service frontend-external
+```
 Example output:
 
 scss
