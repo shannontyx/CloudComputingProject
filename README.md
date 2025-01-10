@@ -232,7 +232,7 @@ Access Grafana on your local browser using:</br>
 http://<EXTERNAL-IP>:80
 
 
-## Deploying Exporters for Node and Pod Metrics in Kubernetes 
+### Deploying Exporters for Node and Pod Metrics in Kubernetes 
 
 Deploying Exporters for Node and Pod Metrics in Kubernetes
 **Step 7: Deploy Node Exporter** </br>
@@ -382,7 +382,7 @@ http://localhost:9090
 
 
 
-# Performance Evaluation with Locust
+### Performance Evaluation with Locust
 This README provides step-by-step instructions to set up and run Locust for performance evaluation of your application running in a Kubernetes cluster.
 
 **Step 1: Access the VM**
@@ -577,6 +577,7 @@ Once v2 is validated, scale down v1 to 0 replicas to fully decommission it:
 kubectl scale deployment/productcatalog-v1 --replicas=0
 ```
 **Step 5: Extend for Seamless Updates**
+</br>
 Ensure Zero Downtime:
 
 Use readiness probes to ensure v2 is fully operational before switching traffic.
@@ -584,3 +585,92 @@ Configure rolling updates to avoid disruptions for in-flight requests.
 Rollback Plan:
 
 Retain the configuration for v1 to quickly revert if issues arise with v2.
+
+## Bonus Steps
+### Monitoring the Application and the Infrastructure
+**Step 1. Collecting Specific Metrics** </br>
+**Step 1.1: Install Dedicated Exporters** </br>
+Redis Exporter
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install redis-exporter prometheus-community/prometheus-redis-exporter --namespace monitoring
+```
+
+**Step 1.2: Write Custom Exporters**
+Write a Python-based exporter using libraries like prometheus_client. </br>
+Create a metrics.py file to expose application-specific metrics.</br>
+```bash
+from prometheus_client import start_http_server, Gauge
+
+g = Gauge('example_metric', 'Description of the metric')
+g.set(42)  # Example value
+
+start_http_server(8000)  # Exposes metrics on port 8000
+```
+
+Run the exporter alongside your application:
+
+```bash
+python3 metrics.py
+```
+Configure Prometheus to scrape these custom metrics by adding a scrape configuration to prometheus.yaml:
+
+```bash
+scrape_configs:
+  - job_name: 'custom-exporter'
+    static_configs:
+      - targets: ['<custom-exporter-IP>:8000']
+```
+**Step 2. Raising Alerts**
+Step 2.1: Configure Alerts </br>
+Create an alerting rule file alert-rules.yaml:
+
+```bash
+groups:
+  - name: example-alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: instance:node_cpu_utilisation:rate5m > 0.8
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for more than 1 minute."
+```
+
+Apply the alerting rule to Prometheus:
+
+```bash
+kubectl create configmap prometheus-alert-rules --from-file=alert-rules.yaml -n monitoring
+kubectl apply -f prometheus-deployment.yaml
+```
+**Step 2.2: Configure Alert Manager** </br>
+Install Alert Manager with Helm:
+
+```bash
+helm install alertmanager prometheus-community/prometheus-alertmanager --namespace monitoring
+```
+Configure Alert Manager to send alerts through email, Slack, or other means. </br>
+Configuration:
+```bash
+global:
+  smtp_smarthost: 'smtp.example.com:587'
+  smtp_from: 'alertmanager@example.com'
+  smtp_auth_username: 'username'
+  smtp_auth_password: 'password'
+route:
+  receiver: 'email-alert'
+receivers:
+  - name: 'email-alert'
+    email_configs:
+      - to: 'your-email@example.com'
+```
+
+Apply the configuration:
+```bash
+kubectl apply -f alertmanager-config.yaml
+```
+
