@@ -14,15 +14,17 @@ Before starting, ensure you have the following installed and configured:
 
 ### Deploying the Original Application in GKE [DONE]
 
-#### Step 0: Set Up GCP Project and Enable Necessary Services
-
+**Step 0: Set Up GCP Project and Enable Necessary Services
+**
 ```bash
 export PROJECT_ID=hello-app-123456
 gcloud config set project ${PROJECT_ID}
 gcloud config set compute/zone europe-west6-a
 gcloud services enable compute.googleapis.com container.googleapis.com
+```
 
-#### Step 1: Prepare a Directory and Clone the Repository
+**Step 1: Prepare a Directory and Clone the Repository
+**
 ```bash
 mkdir ~/projects
 cd ~/projects
@@ -30,8 +32,8 @@ git clone --depth 1 --branch v0 https://github.com/GoogleCloudPlatform/microserv
 cd microservices-demo/
 ```
 
-####Step 2: Create the GKE Cluster with Limited Disk Size
-```bash
+**Step 2: Create the GKE Cluster with Limited Disk Size
+**```bash
 gcloud container clusters create online-boutique \
   --num-nodes=4 \
   --machine-type=e2-standard-2 \
@@ -46,37 +48,41 @@ gcloud container clusters resize online-boutique \
   --region=europe-west6
 ```
 
-####Step 3: Configure kubectl to Use the New Cluster
+**Step 3: Configure kubectl to Use the New Cluster
+**
 ```bash
 gcloud container clusters get-credentials online-boutique
 ```
 
-####Step 4: Deploy the Application Using Kubernetes Manifests
+**Step 4: Deploy the Application Using Kubernetes Manifests**
 
 ```bash
 kubectl apply -f ./release/kubernetes-manifests.yaml
 ```
 
-####Step 5: Check if All Pods Are Running
+**Step 5: Check if All Pods Are Running**
 ```bash
 kubectl get pods
 ```
 
-####Step 6: Find the External IP of the Frontend Service
+**Step 6: Find the External IP of the Frontend Service
+**
 ```bash
 kubectl get service frontend-external
 ```
 Example output:
-
-scss
-Copy code
+```
 NAME                TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)        AGE
 frontend-external   LoadBalancer   34.118.236.208   34.65.135.210   80:30651/TCP   33m
-Step 7: View Logs of the Load Generator to Monitor Traffic
-bash
-Copy code
+```
+
+**Step 7: View Logs of the Load Generator to Monitor Traffic
+**
+```bash
 kubectl logs -l app=loadgenerator -f
-Deploying the Load Generator on a Local Machine [DONE]
+```
+
+### Deploying the Load Generator on a Local Machine 
 Step 8: Navigate to the Load Generator Directory
 bash
 Copy code
