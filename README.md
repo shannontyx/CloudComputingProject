@@ -450,11 +450,22 @@ http://<VM_EXTERNAL_IP>:8089
 Replace <VM_EXTERNAL_IP> with the external IP of your VM.
 ```
 
-Configure Test Parameters:
+**Step 5: Configure Test Parameters**
 
 Number of Users: Start with 10 and increase incrementally (e.g., 10, 50, 100).
 Spawn Rate: Set to 5 users per second.
-Step 5: Analyze Results
-Download CSV Files: The --csv=results flag generates CSV files with performance metrics (e.g., response time, failure rates). These files are saved in the VM's home directory.
+The --csv=results flag generates CSV files with performance metrics (e.g., response time, failure rates). These files are saved in the VM's home directory.
 
-Generate Graphs: Use tools like Excel, Google Sheets, or Python to create graphs based on the CSV data for analysis.
+**Step 6: Analyze Results**
+Download CSV Files: 
+Access VM via Google Cloud Console: Go to Compute Engine > VM Instances.
+Click SSH for your locust-vm.
+
+In the browser-based SSH terminal:
+Click the three-dot menu in the top-right corner.
+Select Download File.
+
+Enter the path to the files, e.g., ~/results_stats.csv.
+
+
+**Step 7: Generate Graphs: Use tools like Excel, Google Sheets, or Python to create graphs based on the CSV data for analysis.**
