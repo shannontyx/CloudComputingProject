@@ -587,7 +587,7 @@ Rollback Plan:
 Retain the configuration for v1 to quickly revert if issues arise with v2.
 
 ## Bonus Steps
-### Monitoring the Application and the Infrastructure
+### [Bonus] Monitoring the Application and the Infrastructure
 **Step 1. Collecting Specific Metrics** </br>
 **Step 1.1: Install Dedicated Exporters** </br>
 Redis Exporter
@@ -598,7 +598,7 @@ helm repo update
 helm install redis-exporter prometheus-community/prometheus-redis-exporter --namespace monitoring
 ```
 
-**Step 1.2: Write Custom Exporters**
+**Step 1.2: Write Custom Exporters**</br>
 Write a Python-based exporter using libraries like prometheus_client. </br>
 Create a metrics.py file to expose application-specific metrics.</br>
 ```bash
@@ -623,7 +623,7 @@ scrape_configs:
     static_configs:
       - targets: ['<custom-exporter-IP>:8000']
 ```
-**Step 2. Raising Alerts**
+**Step 2. Raising Alerts** </br>
 Step 2.1: Configure Alerts </br>
 Create an alerting rule file alert-rules.yaml:
 
@@ -673,4 +673,60 @@ Apply the configuration:
 ```bash
 kubectl apply -f alertmanager-config.yaml
 ```
+
+### [Bonus] Performance Evaluation
+**Step 3. Identifying Bottlenecks** </br>
+**Step 3.1: Gradually Increase Load** </br>
+Use Locust to generate increasing loads and monitor system performance. </br>
+
+Run Locust with a higher number of users:
+
+```bash
+locust -f locustfile.py --host=http://<FRONTEND_EXTERNAL_IP> --users=<number_of_users> --spawn-rate=<rate> --csv=results
+```
+
+Increment the number of users for each test and analyze the response times and throughput to identify the maximum load the system can handle.
+
+**Step 3.2: Use Prometheus Metrics** </br>
+Use the Prometheus dashboard to monitor resource usage such as: </br>
+CPU utilization </br>
+Memory consumption </br>
+Disk I/O </br>
+Network bandwidth </br> </br>
+**Step 3.3: Identify Bottlenecks** </br>
+Look for patterns where increasing user load results in: </br>
+
+Increased response times</br>
+High error rates</br>
+Saturated resource usage (e.g., CPU at 100%)</br>
+**Step 3.4: Optimize and Test Again** </br>
+Identify which component (e.g., database, API, compute) is the bottleneck.</br>
+</br>
+Apply optimizations:</br>
+Add more replicas to Kubernetes deployments:
+```bash
+kubectl scale deployment <deployment-name> --replicas=<number>
+```
+Increase resource limits in deployment YAML:
+```bash
+resources:
+  limits:
+    memory: "2Gi"
+    cpu: "2"
+  requests:
+    memory: "1Gi"
+    cpu: "1"
+```
+
+Optimize database queries or caching strategies. </br>
+
+Run the tests again to measure improvements. </br>
+
+**Step 3.5: Generate Final Report** </br>
+Use Locust's CSV data and Prometheus dashboards to create a report. </br>
+Include graphs and tables showing: </br>
+Load vs. response time</br>
+Resource usage trends</br>
+Identified bottlenecks and fixes applied
+
 
