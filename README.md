@@ -38,7 +38,7 @@ gcloud container clusters create online-boutique \
   --disk-size=30
 ```
 
-Challenge: Exceeded CPU size during terraform apply. The 4 nodes consumed all 8 CPUs in the europe-west6 region. Resized the GKE cluster to 2 nodes.
+Challenge: Exceeded CPU size during terraform apply. </br> The 4 nodes consumed all 8 CPUs in the europe-west6 region. Hence, we used the following command to resize the GKE cluster from 4 to 2 nodes to free up some CPU to apply terraform.
 
 ```bash
 gcloud container clusters resize online-boutique \
@@ -364,6 +364,13 @@ Set Prometheus as the data source. </br>
 Go to Dashboards > Import in Grafana. </br>
 Use Dashboard ID 14282 (cAdvisor Full Metrics) from the Grafana website. </br>
 Set Prometheus as the data source. </br>
+
+11.3 View Dashboards without cAdvisor </br>
+In Grafana, go to Dashboards > Import. </br>
+Use popular dashboard IDs from the Grafana community (e.g., Dashboard ID 6417 for Kubernetes cluster monitoring).</br>
+Verify Node and Pod Metrics. </br>
+View dashboards.
+
 **Step 12: Verify Metrics Collection**
 
 Access the Prometheus web UI via port-forwarding:
@@ -430,7 +437,7 @@ class OnlineBoutiqueUser(HttpUser):
 
 Save the file (Ctrl+O, then Enter) and exit (Ctrl+X).
 
-**Step 4: Run Locust**
+**Step 4: Run Locust** </br>
 Start Locust:
 
 ```bash
@@ -444,6 +451,8 @@ Open a browser and navigate to:
 http://<VM_EXTERNAL_IP>:8089
 Replace <VM_EXTERNAL_IP> with the external IP of your VM.
 ```
+</br>
+Challenge faced when accessing Locust web interface (port 8089 not reachable). Troubleshooting and solutions provided in the pdf document.
 
 **Step 5: Configure Test Parameters**
 
@@ -452,13 +461,13 @@ Spawn Rate: Set to 5 users per second.
 The --csv=results flag generates CSV files with performance metrics (e.g., response time, failure rates). These files are saved in the VM's home directory.
 
 **Step 6: Analyze Results**
-Download CSV Files: 
-Access VM via Google Cloud Console: Go to Compute Engine > VM Instances.
+Download CSV Files:  </br>
+Access VM via Google Cloud Console: Go to Compute Engine > VM Instances. </br>
 Click SSH for your locust-vm.
 
-In the browser-based SSH terminal:
-Click the three-dot menu in the top-right corner.
-Select Download File.
+In the browser-based SSH terminal:</br>
+Click the three-dot menu in the top-right corner. </br>
+Select Download File. </br>
 
 Enter the path to the files, e.g., ~/results_stats.csv.
 
