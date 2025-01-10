@@ -211,7 +211,7 @@ kubectl get svc -n monitoring
 kubectl port-forward --namespace monitoring svc/prometheus-grafana 3000:80
 ```
 
-To access Grafana on local browser, Change the Service Type to LoadBalancer
+To access Grafana on local browser, Change the Service Type to LoadBalancer </br>
 1. Edit the Service
 ```bash
 kubectl edit svc prometheus-grafana -n monitoring
