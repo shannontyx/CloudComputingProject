@@ -62,8 +62,7 @@ kubectl apply -f ./release/kubernetes-manifests.yaml
 kubectl get pods
 ```
 
-**Step 6: Find the External IP of the Frontend Service
-**
+**Step 6: Find the External IP of the Frontend Service**
 ```bash
 kubectl get service frontend-external
 ```
@@ -159,10 +158,11 @@ kubectl get service frontend-external
 **Step 6: Apply the Terraform Configuration**
 ```bash
 terraform apply
+# Enter external IP address when prompted.
+# Confirm with yes when prompted.
+# Go to Google Cloud Console -> Compute Engine -> VMs and we can see that loadgenerator-vm has been configured.
 ```
-Enter external IP address when prompted.
-Confirm with yes when prompted.
-Go to Google Cloud Console -> Compute Engine -> VMs and we can see that loadgenerator-vm has been configured.
+
 
 ---
 
