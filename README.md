@@ -377,44 +377,82 @@ kubectl port-forward --namespace monitoring svc/prometheus-kube-prometheus-prome
 
 http://localhost:9090
 
+```
 
 
+# Performance Evaluation with Locust
+This README provides step-by-step instructions to set up and run Locust for performance evaluation of your application running in a Kubernetes cluster.
 
-# The Performance Evaluation part
-Step 1: Verify Load Generator Deployment
-Ensure that the load generator VM is running in your datacenter and has Docker installed (already configured in your Terraform steps).
+**Step 1: Access the VM**
+SSH into the VM:
+```bash
+gcloud compute ssh <VM_NAME> --zone <VM_ZONE>
+# example: gcloud compute ssh loadgenerator-vm --zone europe-west6-a
+```
 
-Check if the VM is Running:
+Navigate to the home directory of the VM:
+```bash
+cd ~
+```
+**Step 2: Set Up Locust on the VM**
+Install Python and Pip:
+```bash
+sudo apt update
+sudo apt install -y python3 python3-pip
+```
 
-bash
-Copy code
-gcloud compute instances list
+Install Locust:
+```bash
+pip3 install locust
+```
 
+Verify Installation:
+```bash
+locust --version
+```
 
-Step 1: Verify Locust Installation on loadgenerator-vm
-SSH into the loadgenerator-vm:
+**Step 3: Create the Locust Test Script**
+Write the locustfile.py: Create a test script file in the home directory:
+```bash
+nano locustfile.py
+```
+Add Test Scenarios: Paste the following code into locustfile.py:
+The locustfile.py is also in the github.
+```bash
+from locust import HttpUser, task, between
 
-bash
-Copy code
-gcloud compute ssh loadgenerator-vm --zone europe-west6-a
-Check if Docker is installed:
+class OnlineBoutiqueUser(HttpUser):
+    wait_time = between(1, 3)
 
-bash
-Copy code
-docker --version
-If Docker is not installed, you need to install it:
+    @task(3)
+    def browse_products(self):
+        self.client.get("/product/1")  # Simulate browsing a product
 
-bash
-Copy code
-sudo apt-get update
-sudo apt-get install -y docker.io
-Check if Locust is installed: Run the following command to check if Locust is available as a Docker image:
+    @task(1)
+    def add_to_cart(self):
+        self.client.post("/cart", json={"product_id": 1, "quantity": 1})  # Simulate adding an item to cart
+```
 
-bash
-Copy code
-docker images
-If the locustio/locust image is not present, pull the Locust image:
+Save the file (Ctrl+O, then Enter) and exit (Ctrl+X).
 
-bash
-Copy code
-docker pull locustio/locust
+**Step 4: Run Locust**
+Start Locust:
+
+```bash
+locust -f locustfile.py --host=http://<FRONTEND_EXTERNAL_IP> --csv=results
+# Replace <FRONTEND_EXTERNAL_IP> with the external IP of the frontend service from your Kubernetes cluster.
+```
+
+#### Access the Locust Web Interface:
+Open a browser and navigate to:
+http://<VM_EXTERNAL_IP>:8089
+Replace <VM_EXTERNAL_IP> with the external IP of your VM.
+
+Configure Test Parameters:
+
+Number of Users: Start with 10 and increase incrementally (e.g., 10, 50, 100).
+Spawn Rate: Set to 5 users per second.
+Step 5: Analyze Results
+Download CSV Files: The --csv=results flag generates CSV files with performance metrics (e.g., response time, failure rates). These files are saved in the VM's home directory.
+
+Generate Graphs: Use tools like Excel, Google Sheets, or Python to create graphs based on the CSV data for analysis.
