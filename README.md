@@ -131,8 +131,9 @@ gcloud projects add-iam-policy-binding hello-app-123456 \
     --role="roles/editor"
 
 gcloud iam service-accounts keys create ~/terraform-key.json \
-    --iam-account=terraform-sa@hello-app-123456.iam.gserviceaccount.com
+    --iam-account=terraform-sa@<PROJECT_ID>.iam.gserviceaccount.com
 ```
+Replace PROJECT_ID with your project ID.
 
 **Step 3: Create the Terraform Configuration File**
 ```bash
