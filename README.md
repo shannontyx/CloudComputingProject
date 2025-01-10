@@ -217,7 +217,7 @@ To access Grafana on local browser, Change the Service Type to LoadBalancer </br
 kubectl edit svc prometheus-grafana -n monitoring
 ```
 
-2.Modify the type Field: Change the type from ClusterIP to LoadBalancer:
+2. Modify the type Field: Change the type from ClusterIP to LoadBalancer:
 ```bash
 spec:
   type: LoadBalancer
@@ -252,8 +252,6 @@ kubectl get daemonsets -n monitoring -l app.kubernetes.io/name=prometheus-node-e
 Each node in your cluster should have a node-exporter pod.
 
 **Step 8: Deploy cAdvisor**
-
-</br>
 8.1 Create a cAdvisor Deployment Create a file called cadvisor-daemonset.yaml and add the following content:
 
 ```bash
@@ -320,20 +318,19 @@ kubectl apply -f cadvisor-daemonset.yaml
 ```
 8.2 Verify the Deployment Check if the cAdvisor DaemonSet is running:
 
-bash
-Copy code
+```bash
 kubectl get daemonsets -n monitoring -l app=cadvisor
-Step 9: Configure Prometheus to Scrape Metrics
+```
+**Step 9: Configure Prometheus to Scrape Metrics**
 
 9.1 Edit the Prometheus ConfigMap
 
-bash
-Copy code
+```bash
 kubectl edit configmap prometheus-kube-prometheus-prometheus -n monitoring
-Add the following scrape configurations under scrape_configs:
+```
 
-yaml
-Copy code
+Add the following scrape configurations under scrape_configs:
+```bash
 - job_name: 'node-exporter'
   static_configs:
   - targets: ['<NODE-EXPORTER-SERVICE>:9100']
@@ -341,41 +338,41 @@ Copy code
 - job_name: 'cadvisor'
   static_configs:
   - targets: ['<CADVISOR-SERVICE>:8080']
+```
 Replace <NODE-EXPORTER-SERVICE> and <CADVISOR-SERVICE> with the corresponding service names or endpoints.
 
 9.2 Restart Prometheus
 
-bash
-Copy code
+```bash
 kubectl delete pod -n monitoring -l app.kubernetes.io/name=prometheus
-Step 10: Login to Grafana
+```
+**Step 10: Login to Grafana**
 
-Default credentials:
+Default credentials: </br>
 
-Username: admin
-Password: prom-operator
-Step 11: Import Grafana Dashboards
+Username: admin </br>
+Password: prom-operator </br>
+**Step 11: Import Grafana Dashboards**
+</br>
+11.1 Node Exporter Dashboard </br>
 
-11.1 Node Exporter Dashboard
-
-Go to Dashboards > Import in Grafana.
-Use Dashboard ID 1860 (Node Exporter Full) from the Grafana website.
-Set Prometheus as the data source.
-11.2 cAdvisor Dashboard
-
-Go to Dashboards > Import in Grafana.
-Use Dashboard ID 14282 (cAdvisor Full Metrics) from the Grafana website.
-Set Prometheus as the data source.
-Step 12: Verify Metrics Collection
+Go to Dashboards > Import in Grafana. </br>
+Use Dashboard ID 1860 (Node Exporter Full) from the Grafana website. </br>
+Set Prometheus as the data source. </br>
+</br>
+11.2 cAdvisor Dashboard </br>
+Go to Dashboards > Import in Grafana. </br>
+Use Dashboard ID 14282 (cAdvisor Full Metrics) from the Grafana website. </br>
+Set Prometheus as the data source. </br>
+**Step 12: Verify Metrics Collection**
 
 Access the Prometheus web UI via port-forwarding:
-
-
+```bash
 kubectl port-forward --namespace monitoring svc/prometheus-kube-prometheus-prometheus 9090:9090
-
+```
 http://localhost:9090
 
-```
+
 
 
 # Performance Evaluation with Locust
