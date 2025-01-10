@@ -372,8 +372,7 @@ Step 12: Verify Metrics Collection
 
 Access the Prometheus web UI via port-forwarding:
 
-bash
-Copy code
+
 kubectl port-forward --namespace monitoring svc/prometheus-kube-prometheus-prometheus 9090:9090
 
 http://localhost:9090
@@ -381,3 +380,41 @@ http://localhost:9090
 
 
 
+# The Performance Evaluation part
+Step 1: Verify Load Generator Deployment
+Ensure that the load generator VM is running in your datacenter and has Docker installed (already configured in your Terraform steps).
+
+Check if the VM is Running:
+
+bash
+Copy code
+gcloud compute instances list
+
+
+Step 1: Verify Locust Installation on loadgenerator-vm
+SSH into the loadgenerator-vm:
+
+bash
+Copy code
+gcloud compute ssh loadgenerator-vm --zone europe-west6-a
+Check if Docker is installed:
+
+bash
+Copy code
+docker --version
+If Docker is not installed, you need to install it:
+
+bash
+Copy code
+sudo apt-get update
+sudo apt-get install -y docker.io
+Check if Locust is installed: Run the following command to check if Locust is available as a Docker image:
+
+bash
+Copy code
+docker images
+If the locustio/locust image is not present, pull the Locust image:
+
+bash
+Copy code
+docker pull locustio/locust
